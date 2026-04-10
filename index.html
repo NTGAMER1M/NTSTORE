@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NT STORE - Premium Hub</title>
+    <title>NT STORE</title>
 
     <!-- FIREBASE SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <style>
-        /* KHATARNAK ANIMATIONS */
+        /* KHATARNAK ANIMATIONS (ORIGINAL) */
         @keyframes rgbMove { to { background-position: 200% center; } }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes letterFade { 
@@ -21,6 +21,11 @@
         @keyframes cardEntrance {
             0% { opacity: 0; transform: scale(0.8) translateY(50px); filter: blur(10px); }
             100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(56, 189, 248, 0); }
+            100% { transform: scale(0.95); }
         }
 
         :root { 
@@ -49,12 +54,23 @@
             animation: rgbMove 2s linear infinite; font-size: 1.1rem; margin: 0;
         }
         
-        /* CLIPPING EFFECT */
         .icon-btn, .download-btn, .nav-item, .file-label { transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
         .icon-btn:active, .download-btn:active, .file-label:active { transform: scale(0.9) !important; filter: brightness(1.2); }
         .nav-item:active { transform: scale(0.85); }
 
         .icon-btn { background: #38bdf8; color: #fff; border: none; width: 42px; height: 42px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; overflow: hidden; }
+
+        /* --- CHAT CSS --- */
+        #chat-screen { position: fixed; inset: 0; background: var(--bg); z-index: 45000; display: none; flex-direction: column; }
+        .chat-hdr { padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--nav); }
+        #chat-flows { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .bubble { max-width: 80%; padding: 10px 15px; border-radius: 18px; font-size: 0.9rem; color: #fff; position: relative; }
+        .bubble.me { align-self: flex-end; background: #056162; border-bottom-right-radius: 2px; }
+        .bubble.them { align-self: flex-start; background: #262d31; border-bottom-left-radius: 2px; }
+        .bubble .nm { font-size: 0.7rem; font-weight: bold; color: #38bdf8; margin-bottom: 3px; }
+        .bubble .del-btn { background: none; border: none; color: #ff5555; font-size: 0.65rem; cursor: pointer; display: block; text-align: right; width: 100%; margin-top: 5px; font-weight: 900; }
+        .chat-input { padding: 12px; background: var(--nav); display: flex; gap: 10px; padding-bottom: 30px; border-top: 1px solid var(--border); }
+        .chat-input input { flex: 1; padding: 12px; border-radius: 25px; border: 1px solid var(--border); background: var(--bg); color: #fff; }
 
         /* BOTTOM NAV */
         .bottom-nav { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 550px; height: 75px; background: var(--nav); backdrop-filter: blur(20px); border-radius: 50px; display: flex; justify-content: space-around; align-items: center; border: 1px solid var(--border); z-index: 10000; }
@@ -90,10 +106,57 @@
     <div id="loader-stage1"><div class="spinner"></div><div class="rgb-text" style="margin-top:20px;">NT STORE LOADING...</div></div>
     <div id="loader-stage2" style="display:none;"><div class="intro-text-box" id="intro-target"></div><div class="spinner" style="width:35px; height:35px;"></div></div>
 
+    <!-- CHAT SCREEN -->
+    <div id="chat-screen">
+        <div class="chat-hdr">
+            <h2 class="rgb-text" style="font-size:1.1rem;">NT COMMUNITY</h2>
+            <button class="icon-btn" style="background:#ef4444; width:35px; height:35px;" onclick="closeChat()">✕</button>
+        </div>
+        <div id="chat-flows"></div>
+        <div class="chat-input">
+            <input type="text" id="chat-msg-val" placeholder="Type message...">
+            <button class="icon-btn" onclick="sendChat()">🚀</button>
+        </div>
+    </div>
+
+    <!-- CHAT NAME MODAL -->
+    <div id="chat-name-modal" class="screen-overlay">
+        <div class="modal-box">
+            <h2 class="rgb-text">WHO ARE YOU?</h2>
+            <p style="color:#94a3b8; font-size:0.8rem;">(Letters only, no numbers allowed)</p>
+            <input type="text" id="chat-user-input" placeholder="Enter Your Name">
+            <button class="download-btn" onclick="saveChatName()">SAVE & START</button>
+        </div>
+    </div>
+
+    <!-- PAYMENT LOADER -->
+    <div id="payment-loader" class="screen-overlay" style="background: rgba(2,6,23,0.98);">
+        <div style="width:80px; height:80px; background:rgba(56,189,248,0.2); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2.5rem; animation: pulse 1.5s infinite; margin-bottom:20px;">🔐</div>
+        <h2 class="rgb-text">SECURE GATEWAY</h2>
+        <p id="pay-status" style="color:#94a3b8; font-weight:bold;">Connecting to Bank...</p>
+        <div class="spinner" style="margin-top:20px;"></div>
+    </div>
+
+    <!-- QR MODAL -->
+    <div id="qr-modal" class="screen-overlay">
+        <div class="modal-box" style="background:#fff; color:#000;">
+            <h2 style="color:#000; margin:0;">NT GAMER 1M</h2>
+            <div style="background:#f1f5f9; padding:10px; border-radius:15px; margin:15px 0;">
+                <p style="margin:0; font-weight:bold; color:#64748b;">PAYABLE AMOUNT</p>
+                <h1 style="margin:0; color:#0284c7; font-size:2.5rem;" id="qr-amt-val">₹0</h1>
+            </div>
+            <img id="qr-img-src" src="" style="width:220px; height:220px; border:1px solid #ddd;">
+            <h1 style="color:#0284c7; font-weight: 900; margin-top: 15px;">PAY IN THIS QR</h1>
+            <p style="font-size:0.8rem; color:#64748b; margin:10px 0;">Take Screenshot & Scan in Any UPI App</p>
+            <button class="download-btn" style="background:#1e293b; margin-top:10px;" onclick="closeModals()">CANCEL</button>
+        </div>
+    </div>
+
     <div id="main-app" style="display:none; padding-bottom: 120px;">
         <header>
             <div style="background: #111827; padding: 6px 15px; border-radius: 12px; border: 1px solid #1f2937;"><h1 class="rgb-text">NT STORE</h1></div>
             <div class="header-controls">
+                <button class="icon-btn" onclick="openChat()">💬</button>
                 <button class="icon-btn" onclick="toggleTheme()">🌓</button>
                 <button class="icon-btn" onclick="toggleSearch()">🔍</button>
             </div>
@@ -171,7 +234,7 @@
         </nav>
     </div>
 
-    <!-- UPLOAD MODAL -->
+    <!-- ORIGINAL UPLOAD MODAL -->
     <div id="upload-modal" class="screen-overlay">
         <div class="modal-box">
             <div id="up-step-1" class="upload-step">
@@ -229,50 +292,61 @@
         const database = firebase.database();
         let upData = { logo: "" };
         let pressTimer;
+        let cUserName = localStorage.getItem("nt_v4_user");
 
-        // PLAY STORE STYLE DIRECT DOWNLOAD
-        function playStoreDownload(url, filename) {
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename || 'download';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            // Fallback for non-direct links
-            setTimeout(() => { window.open(url, '_blank'); }, 500);
+        // --- CHAT LOGIC ---
+        function openChat() { if(!cUserName) { document.getElementById('chat-name-modal').style.display='flex'; } else { document.getElementById('chat-screen').style.display='flex'; loadChats(); } }
+        function closeChat() { document.getElementById('chat-screen').style.display='none'; }
+        function saveChatName() {
+            let n = document.getElementById('chat-user-input').value.trim();
+            if(!/^[a-zA-Z\s]+$/.test(n) || n.length < 2) return alert("Enter a valid Name (Alphabets only)!");
+            localStorage.setItem("nt_v4_user", n);
+            cUserName = n;
+            document.getElementById('chat-name-modal').style.display='none';
+            openChat();
+        }
+        function sendChat() {
+            let i = document.getElementById('chat-msg-val');
+            if(!i.value.trim()) return;
+            database.ref('nt_chat_v2').push({ n: cUserName, m: i.value, t: Date.now() });
+            i.value = "";
+        }
+        function delMsg(k) { if(confirm("Delete message?")) database.ref('nt_chat_v2/'+k).remove(); }
+        function loadChats() {
+            database.ref('nt_chat_v2').limitToLast(50).on('value', s => {
+                let f = document.getElementById('chat-flows'); f.innerHTML = "";
+                s.forEach(c => {
+                    let d = c.val(); let isMe = d.n === cUserName;
+                    f.innerHTML += `<div class="bubble ${isMe?'me':'them'}"><div class="nm">${d.n}</div>${d.m}${isMe?`<button class="del-btn" onclick="delMsg('${c.key}')">Delete 🗑️</button>`:''}</div>`;
+                });
+                f.scrollTop = f.scrollHeight;
+            });
         }
 
-        // NAVIGATION WITH AUTO-RESET SEARCH
+        // --- ORIGINAL APP FUNCTIONS ---
         function tab(name) {
-            window.scrollTo(0, 0);
-            document.getElementById('searchInput').value = "";
-            filterApps();
+            window.scrollTo(0, 0); document.getElementById('searchInput').value = ""; filterApps();
             document.getElementById('search-container').style.display = 'none';
             ['home','pc','vip','about'].forEach(id => {
-                const sec = document.getElementById(id+'-sec');
-                if(sec) sec.style.display = (id===name ? 'grid' : 'none');
-                const nav = document.getElementById('nav-'+id);
-                if(nav) nav.classList.remove('active');
+                const sec = document.getElementById(id+'-sec'); if(sec) sec.style.display = (id===name ? 'grid' : 'none');
+                const nav = document.getElementById('nav-'+id); if(nav) nav.classList.remove('active');
             });
             document.getElementById('nav-'+name).classList.add('active');
         }
 
-        function toggleSearch() {
-            const isVIP = localStorage.getItem("nt_vip_king_v11") === "true";
-            const currentTab = document.querySelector('.nav-item.active').innerText;
-            const s = document.getElementById('search-container');
-            if (currentTab.includes("HOME") || currentTab.includes("PC")) {
-                s.style.display = (s.style.display === 'block' ? 'none' : 'block');
-            } else if (currentTab.includes("VIP") && isVIP) {
-                s.style.display = (s.style.display === 'block' ? 'none' : 'block');
-            }
-        }
+        function toggleSearch() { document.getElementById('search-container').style.display = (document.getElementById('search-container').style.display === 'block' ? 'none' : 'block'); }
+        function closeModals() { document.querySelectorAll('.screen-overlay').forEach(m => m.style.display='none'); }
+        function toggleTheme() { document.body.classList.toggle('light-theme'); }
 
-        function pay(amt, planName) { 
-            const upiId = "naitikthakare12345@oksbi";
-            const txnId = "TXN" + Date.now();
-            const note = encodeURIComponent(`NT_STORE_${planName}_PLAN`);
-            window.location.href = `upi://pay?pa=${upiId}&pn=NT_GAMER_1M&am=${amt}&cu=INR&tn=${note}&tr=${txnId}&mode=02`; 
+        function pay(amt, plan) {
+            const upi = `upi://pay?pa=naitikthakare12345@oksbi&pn=NT%20GAMER%201M&am=${amt}&cu=INR&tn=NT_STORE_${plan}`;
+            document.getElementById('payment-loader').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('payment-loader').style.display = 'none';
+                document.getElementById('qr-img-src').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upi)}`;
+                document.getElementById('qr-amt-val').innerText = `₹${amt}`;
+                document.getElementById('qr-modal').style.display = 'flex';
+            }, 2000);
         }
 
         function handlePlusClick() {
@@ -281,8 +355,7 @@
         }
 
         function startPublish(targetSection) {
-            const name = document.getElementById('up-name').value;
-            const link = document.getElementById('up-link').value;
+            const name = document.getElementById('up-name').value, link = document.getElementById('up-link').value;
             if(!name || !link || !upData.logo) return alert("Fill all details!");
             nextStep(3); let p = 0;
             let iv = setInterval(() => {
@@ -292,13 +365,7 @@
             }, 100);
         }
 
-        function nextStep(n) { document.querySelectorAll('.upload-step').forEach(s => s.style.display='none'); document.getElementById('up-step-'+n).style.display='block'; }
-        function validateLogo() { const file = document.getElementById('file-logo').files[0]; const reader = new FileReader(); reader.onloadend = () => { upData.logo = reader.result; document.getElementById('logo-ready').style.display='block'; }; if(file) reader.readAsDataURL(file); }
-        function goToVIP() { closeModals(); tab('vip'); }
-        function closeModals() { document.querySelectorAll('.screen-overlay').forEach(m => m.style.display='none'); }
-        function toggleTheme() { document.body.classList.toggle('light-theme'); }
-        function filterApps() { let q = document.getElementById('searchInput').value.toLowerCase(); document.querySelectorAll('.app-card').forEach(c => { c.style.display = c.innerText.toLowerCase().includes(q) ? "" : "none"; }); }
-
+        // DATABASE CODE PANEL RESTORED
         function startPress() { pressTimer = setTimeout(() => {
             document.getElementById('admin-modal').style.display = 'flex';
             database.ref('public_apps').once('value', (snap) => {
@@ -308,44 +375,48 @@
         }, 3000); }
         function endPress() { clearTimeout(pressTimer); }
 
-        function activateVIP() { if(document.getElementById('activationInput').value === "9860866915") { localStorage.setItem("nt_vip_king_v11", "true"); localStorage.setItem("nt_vip_time_v11", Date.now().toString()); location.reload(); } else alert("Wrong Code!"); }
-        function checkVIPStatus() { if(localStorage.getItem("nt_vip_king_v11") === "true") { document.getElementById('vip-locked').style.display = 'none'; document.getElementById('vip-unlocked').style.display = 'block'; } }
-        
         function renderApps() {
-            database.ref('public_apps').on('value', (snap) => {
+            database.ref('public_apps').on('value', snap => {
                 const h = document.getElementById('home-sec'), p = document.getElementById('pc-sec'), v = document.getElementById('vip-list');
                 h.innerHTML = p.innerHTML = v.innerHTML = "";
                 snap.forEach(c => {
-                    const a = c.val(); 
-                    const card = `<div class="app-card"><div class="app-logo-box"><img src="${a.logo}"></div><div style="font-weight:900;">${a.name}</div><button class="download-btn" onclick="playStoreDownload('${a.file}', '${a.name}')">Download</button></div>`;
-                    if(a.target === 'pc') p.innerHTML += card; else if(a.target === 'vip') v.innerHTML += card; else h.innerHTML += card;
+                    let a = c.val(); let card = `<div class="app-card"><div class="app-logo-box"><img src="${a.logo}"></div><div style="font-weight:900;">${a.name}</div><button class="download-btn" onclick="window.open('${a.file}','_blank')">Download</button></div>`;
+                    if(a.target==='pc') p.innerHTML+=card; else if(a.target==='vip') v.innerHTML+=card; else h.innerHTML+=card;
                 });
             });
         }
-        function updateTimer() {
-            if(localStorage.getItem("nt_vip_king_v11") === "true") {
-                const start = parseInt(localStorage.getItem("nt_vip_time_v11")); const rem = (30 * 60) - Math.floor((Date.now() - start) / 1000);
-                if(rem <= 0) { localStorage.clear(); location.reload(); }
-                else { const m = Math.floor(rem/60), s = rem%60; if(document.getElementById('vip-timer')) document.getElementById('vip-timer').innerText = `TIME LEFT: ${m}:${s < 10 ? '0'+s : s}`; }
-            }
-        }
-        
+
         async function runIntro() {
-            const text = "HERE YOU WILL GET ALL THE PRO VERSIONS FOR FREE AND PREMIUM VERSIONS FOR FREE.";
-            const target = document.getElementById('intro-target'); target.innerHTML = "";
-            text.split(" ").forEach(word => { const wordSpan = document.createElement('span'); wordSpan.innerText = word + " "; target.appendChild(wordSpan); });
-            const spans = target.querySelectorAll('span');
-            for(let i=0; i<spans.length; i++) { await new Promise(r => setTimeout(r, 60)); spans[i].style.animation = "letterFade 0.6s forwards"; }
+            let target = document.getElementById('intro-target');
+            "HERE YOU WILL GET ALL THE PRO VERSIONS FOR FREE.".split(" ").forEach(w => { let s=document.createElement('span'); s.innerText=w+" "; target.appendChild(s); });
+            let spans = target.querySelectorAll('span');
+            for(let i=0; i<spans.length; i++) { await new Promise(r=>setTimeout(r,60)); spans[i].style.animation="letterFade 0.6s forwards"; }
         }
 
         window.onload = () => {
             renderApps();
             setTimeout(() => {
                 document.getElementById('loader-stage1').style.display = 'none'; document.getElementById('loader-stage2').style.display = 'flex';
-                runIntro(); setTimeout(() => { document.getElementById('loader-stage2').style.display = 'none'; document.getElementById('main-app').style.display = 'block'; checkVIPStatus(); }, 5500);
+                runIntro(); setTimeout(() => { 
+                    document.getElementById('loader-stage2').style.display = 'none'; document.getElementById('main-app').style.display = 'block'; 
+                    if(localStorage.getItem("nt_vip_king_v11")==="true") { document.getElementById('vip-locked').style.display='none'; document.getElementById('vip-unlocked').style.display='block'; }
+                }, 5500);
             }, 1000);
             setInterval(updateTimer, 1000);
         };
+
+        function activateVIP() { if(document.getElementById('activationInput').value === "9860866915") { localStorage.setItem("nt_vip_king_v11", "true"); localStorage.setItem("nt_vip_time_v11", Date.now()); location.reload(); } else alert("Wrong!"); }
+        function updateTimer() {
+            if(localStorage.getItem("nt_vip_king_v11") === "true") {
+                let start = parseInt(localStorage.getItem("nt_vip_time_v11")); let rem = (30*60)-Math.floor((Date.now()-start)/1000);
+                if(rem<=0) { localStorage.clear(); location.reload(); }
+                else { let m=Math.floor(rem/60), s=rem%60; if(document.getElementById('vip-timer')) document.getElementById('vip-timer').innerText=`TIME LEFT: ${m}:${s<10?'0'+s:s}`; }
+            }
+        }
+        function nextStep(n){ document.querySelectorAll('.upload-step').forEach(s=>s.style.display='none'); document.getElementById('up-step-'+n).style.display='block'; }
+        function validateLogo(){ let f=document.getElementById('file-logo').files[0]; let r=new FileReader(); r.onloadend=()=>{upData.logo=r.result; document.getElementById('logo-ready').style.display='block';}; if(f) r.readAsDataURL(f); }
+        function filterApps(){ let q=document.getElementById('searchInput').value.toLowerCase(); document.querySelectorAll('.app-card').forEach(c=>{c.style.display=c.innerText.toLowerCase().includes(q)?"":"none";}); }
+        function goToVIP() { closeModals(); tab('vip'); }
     </script>
 </body>
 </html>
