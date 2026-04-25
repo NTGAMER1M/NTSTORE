@@ -9,8 +9,12 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
+    <!-- ADS SCRIPTS (Silently Loading) -->
+    <script src="https://pl29111214.profitablecpmratenetwork.com/a3/56/21/a3562156f1074690d7af1f7c051343de.js"></script>
+    <script src="https://pl29111216.profitablecpmratenetwork.com/ac/0f/7b/ac0f7b5b5981b2f875df57dfc5879ef9.js"></script>
+
     <style>
-        /* KHATARNAK ANIMATIONS (ORIGINAL) */
+        /* ANIMATIONS */
         @keyframes rgbMove { to { background-position: 200% center; } }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes letterFade { 
@@ -41,36 +45,30 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; scroll-behavior: smooth; }
         body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; transition: 0.3s; overflow-x: hidden; }
 
+        /* SMALL COMPACT HEADER */
         header { 
-            position: sticky; top: 0; z-index: 20000; padding: 12px 15px; 
+            position: sticky; top: 0; z-index: 20000; padding: 8px 12px; 
             display: flex; justify-content: space-between; align-items: center; 
-            background: rgba(2, 6, 23, 0.5); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);
+            background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);
         }
         
-        .header-controls { display: flex; gap: 8px; align-items: center; }
+        .header-controls { display: flex; gap: 6px; align-items: center; }
         .rgb-text { 
             font-weight: 900; background: linear-gradient(90deg, #ff00ff, #ff0000, #ff8000, #ffff00, #00ff00, #00ffff, #0000ff); 
             background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
-            animation: rgbMove 2s linear infinite; font-size: 1.1rem; margin: 0;
+            animation: rgbMove 2s linear infinite; font-size: 1rem; margin: 0;
         }
         
-        .icon-btn, .download-btn, .nav-item, .file-label { transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
-        .icon-btn:active, .download-btn:active, .file-label:active { transform: scale(0.9) !important; filter: brightness(1.2); }
-        .nav-item:active { transform: scale(0.85); }
+        .icon-btn, .download-btn, .nav-item, .file-label, .num-btn { transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .icon-btn:active, .download-btn:active, .file-label:active, .num-btn:active { transform: scale(0.9) !important; filter: brightness(1.2); }
 
-        .icon-btn { background: #38bdf8; color: #fff; border: none; width: 42px; height: 42px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; overflow: hidden; }
+        .icon-btn { background: #38bdf8; color: #fff; border: none; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; overflow: hidden; }
 
-        /* --- CHAT CSS --- */
-        #chat-screen { position: fixed; inset: 0; background: var(--bg); z-index: 45000; display: none; flex-direction: column; }
-        .chat-hdr { padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--nav); }
-        #chat-flows { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .bubble { max-width: 80%; padding: 10px 15px; border-radius: 18px; font-size: 0.9rem; color: #fff; position: relative; }
-        .bubble.me { align-self: flex-end; background: #056162; border-bottom-right-radius: 2px; }
-        .bubble.them { align-self: flex-start; background: #262d31; border-bottom-left-radius: 2px; }
-        .bubble .nm { font-size: 0.7rem; font-weight: bold; color: #38bdf8; margin-bottom: 3px; }
-        .bubble .del-btn { background: none; border: none; color: #ff5555; font-size: 0.65rem; cursor: pointer; display: block; text-align: right; width: 100%; margin-top: 5px; font-weight: 900; }
-        .chat-input { padding: 12px; background: var(--nav); display: flex; gap: 10px; padding-bottom: 30px; border-top: 1px solid var(--border); }
-        .chat-input input { flex: 1; padding: 12px; border-radius: 25px; border: 1px solid var(--border); background: var(--bg); color: #fff; }
+        /* CUSTOM KEYPAD */
+        .nt-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+        .num-btn { background: #1e293b; color: #fff; border: 1px solid #334155; padding: 15px; border-radius: 15px; font-weight: 900; font-size: 1.3rem; }
+        .num-btn.del { background: #7f1d1d; }
+        .num-btn.verify { background: #22c55e; grid-column: span 3; margin-top: 5px; }
 
         /* BOTTOM NAV */
         .bottom-nav { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 550px; height: 75px; background: var(--nav); backdrop-filter: blur(20px); border-radius: 50px; display: flex; justify-content: space-around; align-items: center; border: 1px solid var(--border); z-index: 10000; }
@@ -79,7 +77,7 @@
         .nav-item.active::before { content: ""; position: absolute; width: 58px; height: 58px; background: var(--primary); border-radius: 50%; z-index: -1; box-shadow: 0 0 20px var(--primary); transform: translateY(-2px); animation: navPop 0.3s ease; }
         .nav-icon { display: block; font-size: 1.5rem; margin-bottom: 2px; }
 
-        /* CONTENT */
+        /* CONTENT GRID */
         .container { max-width: 1100px; width: 92%; margin: 15px auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
         .app-card { background: var(--card); border-radius: 35px; padding: 25px; text-align: center; border: 1px solid var(--border); transition: 0.3s; animation: cardEntrance 0.5s ease-out forwards; }
         .app-card:hover { transform: translateY(-10px); border-color: var(--primary); box-shadow: 0 0 20px rgba(56, 189, 248, 0.4); }
@@ -98,35 +96,20 @@
         .modal-box { background: #0f172a; padding: 30px; border-radius: 35px; border: 2px solid #334155; width: 100%; max-width: 400px; text-align: center; }
         .modal-box input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 15px; background: #020617; color: #fff; border: 1px solid #334155; text-align: center; }
         .file-label { display: block; background: rgba(56, 189, 248, 0.1); color: var(--primary); padding: 14px; border-radius: 15px; margin: 10px 0; border: 2px dashed var(--primary); cursor: pointer; font-weight: 900; }
-        .admin-item { background: #1e293b; margin: 10px 0; padding: 12px; border-radius: 15px; border: 1px solid #334155; text-align: left; }
+
+        /* BANNER AD CONTAINER */
+        #banner-ad-box { width: 100%; text-align: center; margin: 10px 0; display: block; }
     </style>
 </head>
-<body>
+<body onclick="handleGlobalClick()">
 
     <div id="loader-stage1"><div class="spinner"></div><div class="rgb-text" style="margin-top:20px;">NT STORE LOADING...</div></div>
     <div id="loader-stage2" style="display:none;"><div class="intro-text-box" id="intro-target"></div><div class="spinner" style="width:35px; height:35px;"></div></div>
 
-    <!-- CHAT SCREEN -->
-    <div id="chat-screen">
-        <div class="chat-hdr">
-            <h2 class="rgb-text" style="font-size:1.1rem;">NT COMMUNITY</h2>
-            <button class="icon-btn" style="background:#ef4444; width:35px; height:35px;" onclick="closeChat()">✕</button>
-        </div>
-        <div id="chat-flows"></div>
-        <div class="chat-input">
-            <input type="text" id="chat-msg-val" placeholder="Type message...">
-            <button class="icon-btn" onclick="sendChat()">🚀</button>
-        </div>
-    </div>
-
-    <!-- CHAT NAME MODAL -->
-    <div id="chat-name-modal" class="screen-overlay">
-        <div class="modal-box">
-            <h2 class="rgb-text">WHO ARE YOU?</h2>
-            <p style="color:#94a3b8; font-size:0.8rem;">(Letters only, no numbers allowed)</p>
-            <input type="text" id="chat-user-input" placeholder="Enter Your Name">
-            <button class="download-btn" onclick="saveChatName()">SAVE & START</button>
-        </div>
+    <!-- BANNER AD SECTION -->
+    <div id="banner-ad-box">
+        <div id="container-2e58127830f07fc86cbe063ed297bdcc"></div>
+        <script async="async" data-cfasync="false" src="https://pl29111217.profitablecpmratenetwork.com/2e58127830f07fc86cbe063ed297bdcc/invoke.js"></script>
     </div>
 
     <!-- PAYMENT LOADER -->
@@ -154,10 +137,11 @@
 
     <div id="main-app" style="display:none; padding-bottom: 120px;">
         <header>
-            <div style="background: #111827; padding: 6px 15px; border-radius: 12px; border: 1px solid #1f2937;"><h1 class="rgb-text">NT STORE</h1></div>
+            <div style="background: #111827; padding: 4px 12px; border-radius: 10px; border: 1px solid #1f2937;">
+                <h1 class="rgb-text" style="font-size: 0.95rem;">NT STORE</h1>
+            </div>
             <div class="header-controls">
-                <button class="icon-btn" onclick="openChat()">💬</button>
-                <button class="icon-btn" onclick="toggleTheme()">🌓</button>
+                <button class="icon-btn" id="theme-btn" onclick="toggleTheme()">☀️</button>
                 <button class="icon-btn" onclick="toggleSearch()">🔍</button>
             </div>
         </header>
@@ -192,9 +176,22 @@
                         <button class="download-btn" style="background:#ef4444; color:#fff;" onclick="pay(10000, 'Ultimate')">PAY NOW</button>
                     </div>
                 </div>
-                <div style="background:#111827; border:1px solid #334155; border-radius:25px; padding:20px; margin-top:25px; width:100%; max-width:400px;">
-                    <input type="text" id="activationInput" placeholder="ENTER VIP CODE" style="width:100%; padding:12px; border-radius:12px; background:#020617; border:1px solid #334155; color:#fff; text-align:center;">
-                    <button class="download-btn" style="background:#22c55e;" onclick="activateVIP()">VERIFY CODE</button>
+                <div style="background:#111827; border:1px solid #334155; border-radius:25px; padding:20px; margin-top:25px; width:100%; max-width:350px;">
+                    <input type="text" id="activationInput" readonly placeholder="ENTER VIP CODE" style="width:100%; padding:12px; border-radius:12px; background:#020617; border:1px solid #334155; color:#fff; text-align:center; font-weight:bold;">
+                    <div class="nt-keypad">
+                        <button class="num-btn" onclick="pressNum('1')">1</button>
+                        <button class="num-btn" onclick="pressNum('2')">2</button>
+                        <button class="num-btn" onclick="pressNum('3')">3</button>
+                        <button class="num-btn" onclick="pressNum('4')">4</button>
+                        <button class="num-btn" onclick="pressNum('5')">5</button>
+                        <button class="num-btn" onclick="pressNum('6')">6</button>
+                        <button class="num-btn" onclick="pressNum('7')">7</button>
+                        <button class="num-btn" onclick="pressNum('8')">8</button>
+                        <button class="num-btn" onclick="pressNum('9')">9</button>
+                        <button class="num-btn del" onclick="pressNum('del')">⌫</button>
+                        <button class="num-btn" onclick="pressNum('0')">0</button>
+                        <button class="num-btn verify" onclick="activateVIP()">VERIFY CODE</button>
+                    </div>
                 </div>
             </div>
             <div id="vip-unlocked" style="display:none; grid-column:1/-1; text-align:center;">
@@ -234,7 +231,7 @@
         </nav>
     </div>
 
-    <!-- ORIGINAL UPLOAD MODAL -->
+    <!-- UPLOAD MODAL -->
     <div id="upload-modal" class="screen-overlay">
         <div class="modal-box">
             <div id="up-step-1" class="upload-step">
@@ -292,41 +289,45 @@
         const database = firebase.database();
         let upData = { logo: "" };
         let pressTimer;
-        let cUserName = localStorage.getItem("nt_v4_user");
+        let currentTab = 'home'; // Track current section for ads
 
-        // --- CHAT LOGIC ---
-        function openChat() { if(!cUserName) { document.getElementById('chat-name-modal').style.display='flex'; } else { document.getElementById('chat-screen').style.display='flex'; loadChats(); } }
-        function closeChat() { document.getElementById('chat-screen').style.display='none'; }
-        function saveChatName() {
-            let n = document.getElementById('chat-user-input').value.trim();
-            if(!/^[a-zA-Z\s]+$/.test(n) || n.length < 2) return alert("Enter a valid Name (Alphabets only)!");
-            localStorage.setItem("nt_v4_user", n);
-            cUserName = n;
-            document.getElementById('chat-name-modal').style.display='none';
-            openChat();
-        }
-        function sendChat() {
-            let i = document.getElementById('chat-msg-val');
-            if(!i.value.trim()) return;
-            database.ref('nt_chat_v2').push({ n: cUserName, m: i.value, t: Date.now() });
-            i.value = "";
-        }
-        function delMsg(k) { if(confirm("Delete message?")) database.ref('nt_chat_v2/'+k).remove(); }
-        function loadChats() {
-            database.ref('nt_chat_v2').limitToLast(50).on('value', s => {
-                let f = document.getElementById('chat-flows'); f.innerHTML = "";
-                s.forEach(c => {
-                    let d = c.val(); let isMe = d.n === cUserName;
-                    f.innerHTML += `<div class="bubble ${isMe?'me':'them'}"><div class="nm">${d.n}</div>${d.m}${isMe?`<button class="del-btn" onclick="delMsg('${c.key}')">Delete 🗑️</button>`:''}</div>`;
-                });
-                f.scrollTop = f.scrollHeight;
-            });
+        // --- GLOBAL CLICK AD LOGIC ---
+        function handleGlobalClick() {
+            // Sirf Home aur PC section mein click hone par ad open hoga
+            if (currentTab === 'home' || currentTab === 'pc') {
+                window.open('https://www.profitablecpmratenetwork.com/uitj6ddr?key=4fda0e6c3f1a6d74bf19cdb37bfd93c3', '_blank');
+            }
         }
 
-        // --- ORIGINAL APP FUNCTIONS ---
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.getElementById('theme-btn');
+            body.classList.toggle('light-theme');
+            btn.innerText = body.classList.contains('light-theme') ? "🌙" : "☀️";
+        }
+
+        function pressNum(v) {
+            let field = document.getElementById('activationInput');
+            if(v === 'del') { field.value = field.value.slice(0, -1); }
+            else { if(field.value.length < 15) field.value += v; }
+        }
+
+        // --- UPDATED TAB LOGIC FOR ADS ---
         function tab(name) {
-            window.scrollTo(0, 0); document.getElementById('searchInput').value = ""; filterApps();
+            currentTab = name; // Update track
+            window.scrollTo(0, 0); 
+            document.getElementById('searchInput').value = ""; 
+            filterApps();
             document.getElementById('search-container').style.display = 'none';
+
+            // Show/Hide Banner and Popunder Scripts
+            const bannerBox = document.getElementById('banner-ad-box');
+            if(name === 'home' || name === 'pc') {
+                bannerBox.style.display = 'block';
+            } else {
+                bannerBox.style.display = 'none';
+            }
+
             ['home','pc','vip','about'].forEach(id => {
                 const sec = document.getElementById(id+'-sec'); if(sec) sec.style.display = (id===name ? 'grid' : 'none');
                 const nav = document.getElementById('nav-'+id); if(nav) nav.classList.remove('active');
@@ -336,7 +337,6 @@
 
         function toggleSearch() { document.getElementById('search-container').style.display = (document.getElementById('search-container').style.display === 'block' ? 'none' : 'block'); }
         function closeModals() { document.querySelectorAll('.screen-overlay').forEach(m => m.style.display='none'); }
-        function toggleTheme() { document.body.classList.toggle('light-theme'); }
 
         function pay(amt, plan) {
             const upi = `upi://pay?pa=naitikthakare12345@oksbi&pn=NT%20GAMER%201M&am=${amt}&cu=INR&tn=NT_STORE_${plan}`;
@@ -365,7 +365,6 @@
             }, 100);
         }
 
-        // DATABASE CODE PANEL RESTORED
         function startPress() { pressTimer = setTimeout(() => {
             document.getElementById('admin-modal').style.display = 'flex';
             database.ref('public_apps').once('value', (snap) => {
@@ -378,10 +377,10 @@
         function renderApps() {
             database.ref('public_apps').on('value', snap => {
                 const h = document.getElementById('home-sec'), p = document.getElementById('pc-sec'), v = document.getElementById('vip-list');
-                h.innerHTML = p.innerHTML = v.innerHTML = "";
+                if(h) h.innerHTML = ""; if(p) p.innerHTML = ""; if(v) v.innerHTML = "";
                 snap.forEach(c => {
                     let a = c.val(); let card = `<div class="app-card"><div class="app-logo-box"><img src="${a.logo}"></div><div style="font-weight:900;">${a.name}</div><button class="download-btn" onclick="window.open('${a.file}','_blank')">Download</button></div>`;
-                    if(a.target==='pc') p.innerHTML+=card; else if(a.target==='vip') v.innerHTML+=card; else h.innerHTML+=card;
+                    if(a.target==='pc' && p) p.innerHTML+=card; else if(a.target==='vip' && v) v.innerHTML+=card; else if(h) h.innerHTML+=card;
                 });
             });
         }
@@ -405,7 +404,14 @@
             setInterval(updateTimer, 1000);
         };
 
-        function activateVIP() { if(document.getElementById('activationInput').value === "9860866915") { localStorage.setItem("nt_vip_king_v11", "true"); localStorage.setItem("nt_vip_time_v11", Date.now()); location.reload(); } else alert("Wrong!"); }
+        function activateVIP() { 
+            if(document.getElementById('activationInput').value === "9860866915") { 
+                localStorage.setItem("nt_vip_king_v11", "true"); 
+                localStorage.setItem("nt_vip_time_v11", Date.now()); 
+                location.reload(); 
+            } else { alert("Wrong Code!"); document.getElementById('activationInput').value = ""; }
+        }
+
         function updateTimer() {
             if(localStorage.getItem("nt_vip_king_v11") === "true") {
                 let start = parseInt(localStorage.getItem("nt_vip_time_v11")); let rem = (30*60)-Math.floor((Date.now()-start)/1000);
